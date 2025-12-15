@@ -1,62 +1,232 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
-  <head>
-    <title>love you</title>
-    <meta name="Generator" content="EditPlus" />
-    <meta name="Author" content="" />
-    <meta name="Keywords" content="" />
-    <meta name="Description" content="" />
-    <meta charset="UTF-8" />
-  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love You</title>
     <style>
-      html,
-      body {
-        height: 100%;
-        padding: 0;
-        margin: 0;
-        background: #000;
-      }
-      canvas {
-        top: 50;
-        position: absolute;
-        width: 100%;
-        height: 100%;
-      }
+        /* --- 1. CSS GỐC CỦA BẠN --- */
+        html, body {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            background: #000;
+            overflow: hidden;
+            /* Phông chữ mới */
+            font-family: 'Courier New', monospace, sans-serif;
+            color: #d63384; /* Màu chữ mặc định */
+        }
+        canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        #pinkboard {
+            animation: heartbeat 1.5s infinite;
+        }
+        .box {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            transition: opacity 1s ease;
+        }
 
-      @keyframes heartbeat {
-        0% {
-          transform: scale(1);
+        /* --- 2. CSS THÊM VÀO (CHO NÚT BẤM VÀ BONG BÓNG) --- */
+        
+        /* Nút "Tiếp theo" */
+        #nextBtn {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 25px;
+            background: #ff3490;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 0 15px #ff3490;
+            display: none;
+            z-index: 100;
         }
-        50% {
-          transform: scale(1.2);
+        #nextBtn:hover {
+            background: #d63384;
+            transform: translateX(-50%) scale(1.1);
         }
-      }
-      #pinkboard {
-        animation: heartbeat 1.5s infinite;
-      }
-      .box {
-        width: 500px;
-        height: 500px;
-        position: relative;
-        margin: auto;
-      }
+
+        /* Màn hình Bong Bóng (Page 2) */
+        #bubblePage {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 200;
+        }
+
+        /* Style bong bóng ĐÃ CHỈNH SỬA CHO ĐẸP HƠN */
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: rgba(255, 105, 180, 0.05); /* Rất mờ */
+            border-radius: 50%;
+            border: 1px solid rgba(255, 105, 180, 0.4); /* Viền mỏng, nhạt */
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(255, 105, 180, 0.8); /* Hiệu ứng lấp lánh */
+            animation: floatUp linear forwards;
+        }
+        @keyframes floatUp {
+            to { transform: translateY(-120vh); }
+        }
+
+        /* Popup lời nhắn ĐÃ CHỈNH SỬA (CHỈ CÓ CHỮ) */
+        .msg-popup {
+            position: absolute;
+            background: none; /* KHÔNG CÓ NỀN */
+            padding: 5px 10px;
+            color: #ff3490; /* Màu chữ chính */
+            font-weight: bold;
+            font-size: 16px;
+            text-shadow: 0 0 8px #ff3490, 0 0 2px #fff; /* Hiệu ứng phát sáng */
+            display: none;
+            z-index: 300;
+            pointer-events: none; /* Quan trọng: để không chặn click vào bong bóng khác */
+            white-space: nowrap; /* Giữ lời nhắn trên một dòng */
+            /* Phông chữ đã được thiết lập ở <html>/<body> */
+        }
     </style>
-  </head>
-  <body>
-    <div class="box">
-      <canvas id="pinkboard"></canvas>
+</head>
+<body>
+
+    <div class="box" id="heartPage">
+        <canvas id="pinkboard"></canvas>
+        <button id="nextBtn">Tiếp tục nè ❤️</button>
     </div>
+
+    <div id="bubblePage"></div>
+
+
+    <script>
+        // 1. Xử lý hiện nút bấm khi click vào màn hình
+        let firstClick = false;
+        document.body.addEventListener('click', function(e) {
+            if (!firstClick && document.getElementById('heartPage').style.display !== 'none') {
+                document.getElementById('nextBtn').style.display = 'block';
+                firstClick = true;
+            }
+        });
+
+        // 2. Xử lý khi bấm nút chuyển trang
+        document.getElementById('nextBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            
+            const heartPage = document.getElementById('heartPage');
+            heartPage.style.opacity = '0';
+            
+            setTimeout(() => {
+                heartPage.style.display = 'none';
+                const bubblePage = document.getElementById('bubblePage');
+                bubblePage.style.display = 'block';
+                startBubbles();
+            }, 1000);
+        });
+
+        // 3. Logic Bong Bóng và Lời Nhắn (ĐÃ CHỈNH SỬA VỊ TRÍ)
+        const messages = [
+            "Yêu chị nhiềuuuu ❤️",
+            "Phương Thảo Dễ thươnggg",
+            "Cho chị nè 💐💐💐",
+            "Nhớ chị nhiềuuuu",
+            "Xin lũi mòooooo",
+            "Love You 3000",
+            "Đừng dận nữa nhaaa",
+            "Ôm cái nè 🫂🫂",
+            "Công Chúa xinh đẹpp",
+            "LOVE YOU🫰🫰",
+            "Yêu em bé ❤️"
+        ];
+
+        function startBubbles() {
+            const container = document.getElementById('bubblePage');
+            setInterval(() => {
+                createBubble(container);
+            }, 400);
+        }
+
+        function createBubble(container) {
+            const b = document.createElement('div');
+            b.className = 'bubble';
+            
+            const size = Math.random() * 40 + 30;
+            b.style.width = size + 'px';
+            b.style.height = size + 'px';
+            
+            const randomLeft = Math.random() * 90;
+            b.style.left = randomLeft + '%';
+            
+            const duration = Math.random() * 5 + 4;
+            b.style.animationDuration = duration + 's';
+            
+            // Xử lý sự kiện bấm bóng
+            b.onclick = function(e) {
+                e.stopPropagation();
+                
+                // Lấy tọa độ bong bóng trên màn hình (ĐIỂM MỚI QUAN TRỌNG)
+                const rect = b.getBoundingClientRect();
+                
+                showMsg(rect.left + rect.width / 2, rect.top + rect.height / 2); // Truyền tọa độ tâm bong bóng
+                b.remove(); // Nổ bóng
+            };
+
+            container.appendChild(b);
+
+            setTimeout(() => { b.remove(); }, duration * 1000);
+        }
+        
+        // Hàm hiển thị lời nhắn tại vị trí (x, y)
+        function showMsg(x, y) {
+            const msgBox = document.createElement('div');
+            msgBox.className = 'msg-popup';
+            
+            // Chọn lời nhắn ngẫu nhiên
+            msgBox.innerText = messages[Math.floor(Math.random() * messages.length)];
+            
+            // Đặt vị trí popup (ĐIỂM MỚI QUAN TRỌNG)
+            msgBox.style.left = x + 'px';
+            msgBox.style.top = y + 'px';
+
+            document.getElementById('bubblePage').appendChild(msgBox);
+            msgBox.style.display = 'block';
+            
+            // Tự tắt sau 3 giây và xóa khỏi DOM
+            setTimeout(() => {
+                msgBox.style.display = 'none';
+                msgBox.remove();
+            }, 3000);
+        }
+    </script>
+
+
     <script>
       /*
        * Settings
        */
       var settings = {
         particles: {
-          length: 5000, // maximum amount of particles
-          duration: 2.5, // particle duration in sec
-          velocity: 200, // particle velocity in pixels/sec
-          effect: -0.6, // play with this for a nice effect
-          size: 13, // particle size in pixels
+          length: 5000,
+          duration: 2.5,
+          velocity: 200,
+          effect: -0.6,
+          size: 13,
         },
       };
 
@@ -399,5 +569,5 @@
         }, 10);
       })(document.getElementById("pinkboard"));
     </script>
-  </body>
+</body>
 </html>
